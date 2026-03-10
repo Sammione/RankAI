@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+requests
+sentence-transformers
+numpy
+scikit-learn
+python-multipart
