@@ -2,14 +2,14 @@ import os
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Union
 from ranking_logic import rank_cvs
 
 app = FastAPI(title="Seamless HR - AI Ranking Engine")
 
 # ==== Data Models ==== #
 class Applicant(BaseModel):
-    id: str | int
+    id: Union[str, int]
     name: Optional[str] = "Unknown"
     text: str
 
