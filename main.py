@@ -16,6 +16,7 @@ class Applicant(BaseModel):
 class RankRequest(BaseModel):
     job_description: str
     cvs: List[Applicant]
+    top_n: Optional[int] = None
 
 # ==== Endpoints ==== #
 @app.get("/")
@@ -41,7 +42,11 @@ def process_ranking(payload: RankRequest):
         # 2. Run the AI Ranking logic
         ranked_list = rank_cvs(payload.job_description, cv_list)
         
-        # 3. Return the result back to the backend
+        # 3. Filter top N if requested
+        if payload.top_n is not None and payload.top_n > 0:
+            ranked_list = ranked_list[:payload.top_n]
+        
+        # 4. Return the result back to the backend
         return {
             "total_applicants": len(ranked_list),
             "rankings": ranked_list
