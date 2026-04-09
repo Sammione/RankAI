@@ -4,31 +4,25 @@ import numpy as np
 # Load a lightweight, fast model (runs locally for free)
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-def calculate_match_score(jd_text, cv_text):
-    """
-    Calculates the cosine similarity between a Job Description and a CV.
-    Returns a score between 0 and 100.
-    """
-    # 1. Generate Embeddings
-    embeddings1 = model.encode(jd_text, convert_to_tensor=True)
-    embeddings2 = model.encode(cv_text, convert_to_tensor=True)
-
-    # 2. Compute Cosine Similarity
-    cosine_scores = util.cos_sim(embeddings1, embeddings2)
-    
-    # 3. Convert to percentage
-    score = float(cosine_scores[0][0]) * 100
-    return round(score, 2)
-
 def rank_cvs(jd_text, cv_list):
     """
     Ranks a list of CVs based on a Job Description.
     cv_list should be a list of dictionaries: [{'id': 1, 'text': '...'}, ...]
     """
+    # 1. Generate Embedding for Job Description ONCE
+    jd_embedding = model.encode(jd_text, convert_to_tensor=True)
+    
     ranked_results = []
     
     for cv in cv_list:
-        score = calculate_match_score(jd_text, cv['text'])
+        # 2. Generate Embedding for CV
+        cv_embedding = model.encode(cv.get('text', ''), convert_to_tensor=True)
+        
+        # 3. Compute Cosine Similarity
+        cosine_score = util.cos_sim(jd_embedding, cv_embedding)
+        score = float(cosine_score[0][0]) * 100
+        score = round(score, 2)
+
         ranked_results.append({
             "applicant_id": cv.get('id'),
             "name": cv.get('name', 'Unknown'),
